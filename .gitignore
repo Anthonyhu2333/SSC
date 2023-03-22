@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+*.tar.gz
+*.bin
+Metrics/FactCC/checkpoint/
+DataGeneration/dataset/
+Metrics/FactCC/wandb
+*.json
+*.yaml
