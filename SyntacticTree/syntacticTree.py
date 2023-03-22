@@ -202,7 +202,7 @@ class SyntacticTrees:
 
 
 if __name__ == "__main__":
-    trees = SyntacticTrees('Modern technology tries to restore the scene of World War II')
-    tree = trees[0]
+    trees = SyntacticTrees('Modern technology tries to restore the scene of World War II.')
+    tree = trees.trees[0]
     a = tree.get_sentence()
     pdb.set_trace()
