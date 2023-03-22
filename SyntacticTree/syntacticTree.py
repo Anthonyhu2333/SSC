@@ -1,4 +1,5 @@
 import spacy
+import pdb
 
 class SyntacticNode:
     def __init__(self, spacy_node=None, **kwargs):
@@ -112,10 +113,6 @@ class SyntacticTree:
             entity_node.left = left_list
             entity_node.right = right_list
 
-
-
-
-
     def get_sentence(self, target_p=None):
         if target_p is not None and target_p != self.head:
             node = target_p
@@ -194,11 +191,18 @@ class SyntacticTree:
             else:
                 return node_list[index-1]
 
-
+class SyntacticTrees:
+    def __init__(self, text, nlp=None):
+        if nlp == None:
+            nlp = spacy.load("en_core_web_sm")
+        doc = nlp(text)
+        sents =  [item.text for item in doc.sents]
+        self.trees = [SyntacticTree(sent, nlp) for sent in sents]
 
 
 
 if __name__ == "__main__":
-    tree = SyntacticTree('Modern technology tries to restore the scene of World War II')
+    trees = SyntacticTrees('Modern technology tries to restore the scene of World War II')
+    tree = trees[0]
     a = tree.get_sentence()
-    print(a)
+    pdb.set_trace()
