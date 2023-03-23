@@ -135,3 +135,4 @@ DataGeneration/dataset/
 Metrics/FactCC/wandb
 *.json
 *.yaml
+*.pt
