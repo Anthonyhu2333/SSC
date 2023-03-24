@@ -33,6 +33,8 @@ class SummaCBenchmark:
                 self.load_summeval()
             elif dataset_name == "frank":
                 self.load_frank()
+            elif dataset_name == "frank_sentence":
+                self.load_frank_sentence()
             else:
                 raise ValueError("Unrecognized dataset name: %s" % (dataset_name))
 
@@ -297,7 +299,48 @@ class SummaCBenchmark:
         final_dataset = [d for d in clean_dataset if d["cut"] == self.cut]
         self.datasets.append({"name": "summeval", "dataset": final_dataset})
 
+    def load_frank_sentence(self):
+        dataset_folder = os.path.join(self.benchmark_folder, "frank/")
+        if not os.path.exists(dataset_folder):
+            print("==== Frank dataset not found, downloading from scratch")
+            os.makedirs(dataset_folder)
+
+            fns = ["human_annotations_sentence.json", "validation_split.txt", "test_split.txt"]
+            for fn in fns:
+                data = requests.get("https://raw.githubusercontent.com/artidoro/frank/main/data/%s" % fn)
+                with open(os.path.join(dataset_folder, fn), "w") as f:
+                    f.write(data.text)
+
+        raw_file = os.path.join(dataset_folder, "human_annotations_sentence.json")
+        val_hash_file = os.path.join(dataset_folder, "validation_split.txt")
+        test_hash_file = os.path.join(dataset_folder, "test_split.txt")
+        with open(val_hash_file if self.cut=="val" else test_hash_file, "r") as f:
+            valid_hashes = set([line.strip() for line in f])
+
+        with open(raw_file, "r") as f:
+            raw_dataset = json.load(f)
+        dataset = []
+        for d in raw_dataset:
+            article = d["article"]
+            origin = "cnndm" if len(d["hash"]) >= 40 else "xsum"
+
+            if d["hash"] not in valid_hashes:
+                continue
+
+            annotator_labels = {}
+            for sentnece, annot in zip(d['summary_sentences'], d["summary_sentences_annotations"]):
+                annot_vals = [an for ans in annot.values() for an in ans]
+                noerror_count = len([an for an in annot_vals if an=="NoE"])
+                label = 1 if noerror_count >= 2 else 0
+                dataset.append({"document": article, "claim": sentence, "label": label, "cut": self.cut, "hash": d["hash"], "model_name": d["model_name"], "annotations": annot_vals, "dataset": "frank", "origin": origin})
+        self.datasets.append({"name": "frank_sentence", "dataset": dataset})
+    
+    def load_frank_sentence_by_error(self, error_type):
+        frank_sentence = [item['dataset'] for item in self.datasets if item['name']=="frank_sentence"][0]
+        return [item for item in frank_sentence if error_type in item["annotations"]]
+    
     def load_frank(self):
+        
         # FRANK: Factuality Evaluation Benchmark [https://aclanthology.org/2021.naacl-main.383.pdf]
         # Files must be downloaded from the Github repository: https://github.com/artidoro/frank
 
