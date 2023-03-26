@@ -8,6 +8,8 @@ from scorer import ClozEScorer
 from utils import get_tokenization_caches, \
     parse_eval_batch, mask_factors_with_mapping, create_cloze_model_input_tensors
 
+import pdb
+
 
 class ClozEMetric:
     def __init__(self,
@@ -119,12 +121,15 @@ class ClozEMetric:
                     input_ids=input_ids,
                     attention_mask=attention_mask
                 )
+            
 
             distributions = torch.softmax(outputs.logits, dim=-1)
             max_probabilities = torch.max(distributions, dim=-1)
 
             probabilities = max_probabilities.values
             predicts = max_probabilities.indices
+
+            
 
             # process each sample
             for batch_idx in range(len(predicts)):
@@ -160,6 +165,8 @@ class ClozEMetric:
                         predicts[batch_idx, start:end].tolist())
                     eval_results_dict[sample_id]['summary'][sentence_id]['probabilities'].append(
                         probabilities[batch_idx, start:end].tolist())
+
+        pdb.set_trace()
 
         final_scores = self.scorer.evaluate(eval_results_dict,
                                             self.tokenizer,

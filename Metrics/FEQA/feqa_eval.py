@@ -15,6 +15,7 @@ from nltk.tree import ParentedTree
 from collections import defaultdict, Counter
 import numpy as np
 import pdb
+import json
 
 class FEQAEval(Base_Eval):
     def __init__(self, nlp=None, parser=None):
@@ -88,7 +89,7 @@ class FEQAEval(Base_Eval):
             answers+=[' '.join(all_tokens[i][start:end + 1]) for i, (start, end) in enumerate(zip(answers_starts, answers_ends))]
         return answers
    
-    def get_answer_by_key_word(self, summary, document, keyword):
+    def get_answer_by_key_word(self,  document, summary, keyword):
         question, tokenized_phrase = self.generate_question_by_key_word(summary, keyword)
         input_ids = self.tokenizer.encode(question[0], document, add_special_tokens=True)[:512]
         tokens = self.tokenizer.convert_ids_to_tokens(input_ids)
@@ -169,22 +170,29 @@ class FEQAEval(Base_Eval):
         return np.mean(f1_list)
    
     def score(self, docuemnt, claim):
-        retrun self.compute_score([document], [claim])[0]
+        return self.compute_score([document], [claim])[0]
         
     def evaluate_file(self, file_path):
         with open(file_path, 'r') as f:
             data = json.load(f)
         documents = [item['document'] for item in data]
         claims = [item['claim'] for item in data]
-        retrun np.mean(self.compute_score(documents, claims))
+        return np.mean(self.compute_score(documents, claims))
     
-    def check_key_word(self, document, key_word):
-        return self.get_answer_by_key_word(summary, document, keyword)
+    def check_key_word(self, document, claim, keyword):
+        return self.get_answer_by_key_word(document, claim, keyword)
+    
+    def check_key_words(self, document, claim):
+        answers_pair = []
+        claim_doc = self.nlp(claim)
+        for entity in [item.text for item in claim_doc.ents]:
+            answers_pair.append((entity, self.get_answer_by_key_word(document, claim, entity)))
+        return answers_pair
     
 
 if __name__ == "__main__":
     eval = FEQAEval()
     # eval.get_answer_by_key_word('Bob went to Beijing', 'Bob went to Beijing', 'Beijing')
-    result = eval.compute_score(, ['Bob went to Beijing']*10)
+    result = eval.check_key_words('Bob went to Beijing', 'Bob went to Beijing')
     pdb.set_trace()
     
