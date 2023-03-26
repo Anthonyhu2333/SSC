@@ -55,4 +55,7 @@ class ClozEEval(Base_Eval):
     def check_key_words(self, document, claim, key_word):
         pass
 
+if __name__ == "__main__":
+    pass
+
         

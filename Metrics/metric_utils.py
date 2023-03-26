@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 import torch
 from torch.utils.data import Dataset, DataLoader
 import json
@@ -7,13 +6,11 @@ class Base_Eval:
     def __init__(self):
         pass
     
-    @abstractmethod
     def score(self, document, claim):
-        pass
+        return 1
     
-    @abstractmethod
     def evaluate_file(self, file_path):
-        pass
+        return 1
 
 class SummaryDataset(Dataset):
     def __init__(self, path):
