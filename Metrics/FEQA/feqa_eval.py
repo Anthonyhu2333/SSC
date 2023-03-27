@@ -194,5 +194,4 @@ if __name__ == "__main__":
     eval = FEQAEval()
     # eval.get_answer_by_key_word('Bob went to Beijing', 'Bob went to Beijing', 'Beijing')
     result = eval.check_key_words('Bob went to Beijing', 'Bob went to Beijing')
-    pdb.set_trace()
     
