@@ -51,6 +51,12 @@ class FactccEval(Base_Eval):
         if result is None:
             return None
         return np.mean(result)
+    
+    def check_key_word(self, document, claim, keyword):
+        return None
+    
+    def check_key_words(self, document, claim):
+        return None
         
         
 

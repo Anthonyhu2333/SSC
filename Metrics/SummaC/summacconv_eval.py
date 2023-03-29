@@ -18,3 +18,9 @@ class SummaCConvEval(Base_Eval):
         documents = [item['document'] for item in data]
         claims = [item['claim'] for item in data]
         return np.mean(self.model.score(documents, claims)["scores"])
+    
+    def check_key_word(self, document, claim, keyword):
+        return None
+    
+    def check_key_words(self, document, claim):
+        return None
