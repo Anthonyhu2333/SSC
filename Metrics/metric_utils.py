@@ -11,6 +11,13 @@ class Base_Eval:
     
     def evaluate_file(self, file_path):
         return 1
+    
+    def check_key_word(self, document, claim, keyword):
+        return None
+    
+    def check_key_words(self, document, claim):
+        return None
+
 
 class SummaryDataset(Dataset):
     def __init__(self, path):

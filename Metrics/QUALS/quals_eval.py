@@ -6,7 +6,9 @@ from fairseq.data import LanguagePairDataset
 from fairseq.sequence_scorer import SequenceScorer
 from fairseq import utils
 from collections import OrderedDict
+from tqdm import tqdm
 import torch
+import numpy as np
 import pdb
 
 class QUALSEcal(Base_Eval):
@@ -138,10 +140,9 @@ class QUALSEcal(Base_Eval):
             qa['eval_a_ns'] = qa['eval_a_uns'] * 1.0 / ans_scores.numel() if ans_scores.numel() > 0 else 0.0
             qa['eval_pos_scores'] = hypo[0]['positional_scores'].tolist()
             qa_id += 1
-        pdb.set_trace()
         return qas_item
     
-    def compute_hypos_lm_score(qas_item):
+    def compute_hypos_lm_score(self, qas_item):
         metrics = ['eval_ns-ns']
         hypo_avg = {}
         for metric in metrics:
@@ -151,7 +152,7 @@ class QUALSEcal(Base_Eval):
                 metric_split = metric.split('-')
                 if len(metric_split) == 1:
                     value = qa[metric]
-                 else:
+                else:
                     value = qa[metric_split[0]] - qa[metric_split[1]]
                 sum_per_hypo += value
                 count_per_hypo += 1
@@ -165,16 +166,20 @@ class QUALSEcal(Base_Eval):
     def score(self, document, claim):
         hypotheses_batch, score_batch, unnormalized_score_batch = self._sample_wrapper([claim.strip()])
         qa_list = self.filter_qas_dataset_lm_score(hypotheses_batch[0], score_batch[0], unnormalized_score_batch[0], claim.strip())
-        self.run_qa_eval_process_local(document, qa_list)
-
-    
-
-        
-        
-    
+        qas_item = self.run_qa_eval_process_local(document, qa_list)
+        score = self.compute_hypos_lm_score(qas_item)['eval_ns-ns']
+        return score
+  
     def evaluate_file(self, file_path):
-        pass
-    
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        documents = [item['document'] for item in data]
+        claims = [item['claim'] for item in data]
+        scores = []
+        for document, claim in zip(documents, claims):
+            scores.append(self.score(document, claim))
+        return np.mean(scores)
+        
     def check_key_word(self, document, claim, keyword):
         return None
     
@@ -183,4 +188,5 @@ class QUALSEcal(Base_Eval):
 
 if __name__ == "__main__":
     eval = QUALSEcal()
-    eval.score('Bob went to Beijing.', 'Bob went to Beijing.')
+    result = eval.score('Bob went to Beijing.', 'Bob went to Beijing.')
+    pdb.set_trace()
