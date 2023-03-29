@@ -38,7 +38,7 @@ def get_tokenization_caches(data, tokenizer, max_len=512, use_tqdm=True):
     if use_tqdm:
         bar = tqdm(data, desc=f'Tokenizing {len(data)} samples', ncols=150)
     else:
-        print(f'Tokenizing {len(data)} samples...')
+        # print(f'Tokenizing {len(data)} samples...')
         bar = data
 
     for sample in bar:

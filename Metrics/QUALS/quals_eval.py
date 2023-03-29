@@ -11,7 +11,7 @@ import torch
 import numpy as np
 import pdb
 
-class QUALSEcal(Base_Eval):
+class QUALSEval(Base_Eval):
     def __init__(self):
         checkpoint_dir = '/root/autodl-tmp/SSC/Metrics/QUALS/checkpoint'
         ckp_file = 'checkpoint2.pt'
@@ -187,6 +187,6 @@ class QUALSEcal(Base_Eval):
         return None
 
 if __name__ == "__main__":
-    eval = QUALSEcal()
+    eval = QUALSEval()
     result = eval.score('Bob went to Beijing.', 'Bob went to Beijing.')
     pdb.set_trace()

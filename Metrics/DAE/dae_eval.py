@@ -6,13 +6,14 @@ from preprocessing_utils import get_tokens, get_relevant_deps_and_context
 from sklearn.utils.extmath import softmax
 import numpy as np
 from transformers import ElectraConfig, ElectraTokenizer
-import utils
+import dae_utils
 import subprocess
 import argparse
 import pdb
 
 class DAEEval(Base_Eval):
     def __init__(self):
+
         # subprocess.run('cd /root/autodl-tmp/SSC/Metrics/DAE/checkpoint/stanford-corenlp-full-2018-02-27 && java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer &', shell=True, check=True)
 
         parser = argparse.ArgumentParser()
@@ -23,7 +24,7 @@ class DAEEval(Base_Eval):
         self.args.model_type = 'electra_dae'
         self.args.dependency_type = 'enhancedDependencies'
         self.tokenizer = ElectraTokenizer.from_pretrained('/root/autodl-tmp/SSC/Metrics/DAE/checkpoint/dae_basic')
-        self.model = utils.ElectraDAEModel.from_pretrained('/root/autodl-tmp/SSC/Metrics/DAE/checkpoint/dae_basic')
+        self.model = dae_utils.ElectraDAEModel.from_pretrained('/root/autodl-tmp/SSC/Metrics/DAE/checkpoint/dae_basic')
         self.model.to(self.args.device)
         
 
@@ -70,7 +71,7 @@ def score_example_single_context(decode_text, input_text, model, tokenizer, args
             dict_temp['dep' + str(i)] = ''
             dict_temp['dep_label' + str(i)] = ''
 
-    features = utils.convert_examples_to_features_bert(
+    features = dae_utils.convert_examples_to_features_bert(
         [dict_temp],
         tokenizer,
         max_length=128,

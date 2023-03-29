@@ -33,7 +33,7 @@ class FactualFactorExtractor:
         if use_tqdm:
             bar = tqdm(list(zip(documents, summaries)), desc=f'Extracting factual factors', ncols=150)
         else:
-            print(f'Extracting factual factors from {len(documents)} samples...')
+            # print(f'Extracting factual factors from {len(documents)} samples...')
             bar = list(zip(documents, summaries))
 
         # process each pair of document and summary
@@ -144,7 +144,7 @@ class FactualFactorExtractor:
         if use_tqdm:
             bar = tqdm(data, desc=f'Blocking factual factors by k={k}', ncols=150)
         else:
-            print(f'Blocking factual factors by k={k} from {len(data)} samples...')
+            # print(f'Blocking factual factors by k={k} from {len(data)} samples...')
             bar = data
 
         for i, sample in enumerate(bar):

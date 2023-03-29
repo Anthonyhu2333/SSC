@@ -2,15 +2,17 @@ import sys
 sys.path.append('..')
 import torch
 from metric_utils import Base_Eval
-from summac.model_summac import SummaCZS
+from summac.model_summac import SummaCConv
 import numpy as np
+import pdb
 
 class SummaCConvEval(Base_Eval):
     def __init__(self):
         self.model = SummaCConv(models=["vitc"], bins='percentile', granularity="sentence", nli_labels="e", device="cuda", start_file="default", agg="mean")
 
     def score(self, document, claim):
-        return self.model([document], [summary])["scores"][0]
+        result = self.model.score([document], [claim])['scores'][0]
+        return result
     
     def evaluate_file(self, file_path):
         with open(file_path, 'r') as f:

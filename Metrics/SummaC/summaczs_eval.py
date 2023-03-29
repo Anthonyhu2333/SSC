@@ -7,10 +7,10 @@ import numpy as np
 
 class SummaCZSEval(Base_Eval):
     def __init__(self):
-        self.model_ = SummaCZS(granularity="sentence", model_name="vitc", device="cuda") 
+        self.model = SummaCZS(granularity="sentence", model_name="vitc", device="cuda") 
         
     def score(self, document, claim):
-        return self.model([document], [summary])["scores"][0]
+        return self.model.score([document], [claim])["scores"][0]
     
     def evaluate_file(self, file_path):
         with open(file_path, 'r') as f:

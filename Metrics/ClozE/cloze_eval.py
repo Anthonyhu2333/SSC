@@ -67,7 +67,7 @@ class ClozEEval(Base_Eval):
                                     alpha=0.5,
                                     beta=0.5,
                                     eval_batch_size=8,
-                                    verbose=True,
+                                    verbose=False,
                                     use_tqdm=False)
         detail = predicts[0]['infos']['summary'][0]['comparision']
         for item in detail:
@@ -90,7 +90,7 @@ class ClozEEval(Base_Eval):
                                     alpha=0.5,
                                     beta=0.5,
                                     eval_batch_size=8,
-                                    verbose=True,
+                                    verbose=False,
                                     use_tqdm=False)
         detail = predicts[0]['infos']['summary'][0]['comparision']
         return [(item['factor'], item['answer']) for item in detail]

@@ -105,7 +105,7 @@ class ClozEMetric:
         if use_tqdm:
             bar = tqdm(range(len(eval_loader)), desc=f'Evaluating {len(eval_loader.dataset)} samples', ncols=150)
         else:
-            print(f'Evaluating {len(eval_loader.dataset)} samples with {len(eval_loader)} steps...')
+            # print(f'Evaluating {len(eval_loader.dataset)} samples with {len(eval_loader)} steps...')
             bar = range(len(eval_loader))
 
         eval_results_dict = {}
@@ -165,8 +165,6 @@ class ClozEMetric:
                         predicts[batch_idx, start:end].tolist())
                     eval_results_dict[sample_id]['summary'][sentence_id]['probabilities'].append(
                         probabilities[batch_idx, start:end].tolist())
-
-        pdb.set_trace()
 
         final_scores = self.scorer.evaluate(eval_results_dict,
                                             self.tokenizer,

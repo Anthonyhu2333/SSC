@@ -57,7 +57,7 @@ class FEQAEval(Base_Eval):
                 doc_ids.append(id_)
                 tokenized_phrases.append(tokenized_phrase)
         questions = []
-        for i in tqdm(range(0, len(qa_masks), self.batch_size)):
+        for i in range(0, len(qa_masks), self.batch_size):
             batch = qa_masks[i:i + self.batch_size]
             hypotheses = self.qg_model.sample(batch, beam=self.beam_size, lenpen=1.0, max_len_b=self.max_length, min_len=1, no_repeat_ngram_size=3)
             questions.extend(hypotheses)
@@ -105,9 +105,9 @@ class FEQAEval(Base_Eval):
 
     def compute_score(self, documents, summaries, aggregate=False):
         #generate questions from summaries
-        print("Generating questions...")
+        # print("Generating questions...")
         doc_ids, questions, tokenized_phrases = self.generate_questions(summaries)
-        print("Getting answers...")
+        # print("Getting answers...")
         document_inputs = [documents[i] for i in doc_ids]
         answers = self.get_answers(questions, document_inputs)
         
@@ -169,7 +169,7 @@ class FEQAEval(Base_Eval):
             f1_list.append(self._compute_f1(a_gold,a_pred))
         return np.mean(f1_list)
    
-    def score(self, docuemnt, claim):
+    def score(self, document, claim):
         return self.compute_score([document], [claim])[0]
         
     def evaluate_file(self, file_path):
