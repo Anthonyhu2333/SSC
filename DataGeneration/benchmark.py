@@ -8,7 +8,7 @@ from utils_misc import download_file_from_google_drive
 # SummaC Benchmark
 class SummaCBenchmark:
 
-    def __init__(self, benchmark_folder="/root/autodl-tmp/SSC/DataGeneration/dataset/", dataset_names=["cogensum", "xsumfaith", "polytope", "factcc", "summeval", "frank"], cut="val"):
+    def __init__(self, benchmark_folder="/root/autodl-tmp/SSC/DataGeneration/dataset/", dataset_names=["frank_sentence"], cut="val"):
         assert cut in ["val", "test"], "Unrecognized cut for the Fact Checking Benchmark"
         if not os.path.exists(benchmark_folder):
             os.makedirs(benchmark_folder)
@@ -328,7 +328,7 @@ class SummaCBenchmark:
                 continue
 
             annotator_labels = {}
-            for sentnece, annot in zip(d['summary_sentences'], d["summary_sentences_annotations"]):
+            for sentence, annot in zip(d['summary_sentences'], d["summary_sentences_annotations"]):
                 annot_vals = [an for ans in annot.values() for an in ans]
                 noerror_count = len([an for an in annot_vals if an=="NoE"])
                 label = 1 if noerror_count >= 2 else 0
