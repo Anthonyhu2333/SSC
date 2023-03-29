@@ -133,6 +133,7 @@ dmypy.json
 Metrics/FactCC/checkpoint/
 DataGeneration/dataset/
 Metrics/FactCC/wandb
+Metrics/DAE/checkpoint/stanford-corenlp-full-2018-02-27
 *.json
 *.yaml
 *.pt
