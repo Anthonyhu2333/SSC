@@ -6,10 +6,11 @@ from metric import ClozEMetric
 import numpy as np
 import pdb
 import json
+#pip install cupy-wheel
 
 class ClozEEval(Base_Eval):
     def __init__(self):
-        self.scorer = ClozEMetric(cloze_model_path='/root/autodl-tmp/SSC/Metrics/ClozE/checkpoint/ClozE-roberta-base-cnndm', fact_extractor='en_core_web_sm', use_gpu=False)
+        self.scorer = ClozEMetric(cloze_model_path='/root/autodl-tmp/SSC/Metrics/ClozE/checkpoint/ClozE-roberta-base-cnndm', fact_extractor='en_core_web_sm', use_gpu=True)
     
     def score(self, document, claim):
         return self.scorer.score([document],

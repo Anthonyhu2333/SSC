@@ -1,7 +1,12 @@
 import sys
 sys.path.append('..')
 from metric_utils import Base_Eval
-from fairseq.models.bart import BARTModel
+# import importlib.util
+# module_path = "/root/autodl-tmp/SSC/Metrics/QUALS/fairseq/models/bart/model.py"
+# spec = importlib.util.spec_from_file_location("BARTModel", module_path)
+# module = importlib.util.module_from_spec(spec)
+# spec.loader.exec_module(module)
+from bart import BARTModel
 from fairseq.data import LanguagePairDataset
 from fairseq.sequence_scorer import SequenceScorer
 from fairseq import utils

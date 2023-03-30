@@ -137,3 +137,5 @@ Metrics/DAE/checkpoint/stanford-corenlp-full-2018-02-27
 *.json
 *.yaml
 *.pt
+*.out
+Metrics/ClozE/cloze_eval.py

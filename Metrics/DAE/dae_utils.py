@@ -4,7 +4,7 @@ from transformers import BertPreTrainedModel, BertModel
 from transformers import ElectraPreTrainedModel, ElectraModel
 from torch.utils.data import TensorDataset
 from torch.nn import CrossEntropyLoss
-
+import pdb
 logger = logging.getLogger(__name__)
 import sys
 # import utils
@@ -138,6 +138,7 @@ class ElectraDAEModel(ElectraPreTrainedModel):
     def forward(self, input_ids, attention, token_ids, child, head, dep_labels, arcs, arc_label_lengths, device='cuda'):
         batch_size = input_ids.size(0)
 
+        # pdb.set_trace()
         transformer_outputs = self.electra(input_ids, attention_mask=attention, token_type_ids=token_ids)
         outputs = transformer_outputs[0]
         outputs = self.dropout(outputs)
@@ -221,14 +222,14 @@ class InputFeatures(object):
         self.arc_label_lengths = arc_label_lengths
 
 
-def convert_examples_to_features_bert(examples, tokenizer, max_length=128, pad_token=None, pad_token_segment_id=None,
+def convert_examples_to_features_bert(examples, tokenizer, max_length=512, pad_token=None, pad_token_segment_id=None,
                                       num_deps_per_ex=20):
     features = []
     rejected_ex = 0
 
     for (ex_index, example) in enumerate(examples):
-        if ex_index % 10000 == 0:
-            logger.info("Writing example %d" % ex_index)
+        # if ex_index % 10000 == 0:
+            # logger.info("Writing example %d" % ex_index)
 
         tokens_input = []
         tokens_input.extend(tokenizer.tokenize('[CLS]'))
@@ -283,8 +284,8 @@ def convert_examples_to_features_bert(examples, tokenizer, max_length=128, pad_t
             input_arcs[i] = pad_1d(arc, 20, pad_token)
 
         if len(tokens_input) > max_length:
-            rejected_ex += 1
-            # tokens_input = tokens_input[:max_length]
+            # rejected_ex += 1
+            tokens_input = tokens_input[:max_length]
             continue
 
         if num_dependencies == 0:

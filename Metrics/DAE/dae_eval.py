@@ -29,7 +29,11 @@ class DAEEval(Base_Eval):
         
 
     def score(self, document, claim):
-        return score_example_single_context(claim, document, self.model, self.tokenizer, self.args)
+        try:
+            score = score_example_single_context(claim, document, self.model, self.tokenizer, self.args)
+        except Exception as e:
+            score = 0
+        return float(score)
     
     def evaluate_file(self, file_path):
         with open(file_path, 'r') as f:
@@ -39,7 +43,7 @@ class DAEEval(Base_Eval):
         scores = []
         for document, claim in zip(documents, claims):
             scores.append(self.score(document, claim))
-        return np.mean(scores)
+        return float(np.mean(scores))
     
     def check_key_word(self, document, claim, keyword):
         return None
@@ -74,7 +78,7 @@ def score_example_single_context(decode_text, input_text, model, tokenizer, args
     features = dae_utils.convert_examples_to_features_bert(
         [dict_temp],
         tokenizer,
-        max_length=128,
+        max_length=512,
         pad_token=tokenizer.convert_tokens_to_ids([tokenizer.pad_token])[0],
         pad_token_segment_id=0,
     )
@@ -96,7 +100,7 @@ def score_example_single_context(decode_text, input_text, model, tokenizer, args
     inputs = {'input_ids': input_ids, 'attention': attention, 'token_ids': token_ids, 'child': child, 'head': head,
               'dep_labels': dep_labels, 'arcs': arc_labels, 'arc_label_lengths': arc_label_lengths,
               'device': args.device}
-
+    # pdb.set_trace()
     outputs = model(**inputs)
     tmp_eval_loss, logits = outputs[:2]
     preds = logits.detach().cpu().numpy()
