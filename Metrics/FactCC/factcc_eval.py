@@ -28,6 +28,7 @@ class FactccEval(Base_Eval):
         self.model = BertForSequenceClassification.from_pretrained(self.checkpoint)
         self.tokenizer = BertTokenizer.from_pretrained('/root/autodl-tmp/SSC/Metrics/FactCC/checkpoint/tokenizer')
         self.model.to(self.device)
+        self.model.eval()
         
     def score(self, document, claim):
         encoded_input = self.tokenizer.encode_plus(claim, document, padding=True, truncation=True, max_length=512, return_tensors='pt').to(self.device)
