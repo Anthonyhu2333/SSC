@@ -1,5 +1,6 @@
 import spacy
 import pdb
+spacy.prefer_gpu(0)
 
 class SyntacticNode:
     def __init__(self, spacy_node=None, **kwargs):

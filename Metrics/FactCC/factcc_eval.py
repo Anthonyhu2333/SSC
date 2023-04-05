@@ -31,7 +31,7 @@ class FactccEval(Base_Eval):
         self.model.eval()
         
     def score(self, document, claim):
-        encoded_input = self.tokenizer.encode_plus(claim, document, padding=True, truncation=True, max_length=512, return_tensors='pt').to(self.device)
+        encoded_input = self.tokenizer.encode_plus(document, claim, padding=True, truncation=True, max_length=512, return_tensors='pt').to(self.device)
         output = self.model(**encoded_input)
         preds = np.argmax(output.logits.cpu().detach().numpy(), axis=1)
         return int(preds[0])
