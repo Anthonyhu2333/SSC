@@ -6,24 +6,20 @@ import json
 sys.path.append('/root/autodl-tmp/SSC/DataGeneration')
 metric_root = '/root/autodl-tmp/SSC/Metrics'
 sys.path.append(metric_root)
+sys.path.insert(0, '/root/autodl-tmp/SSC/Metrics/QUALS')
 for folder_name, subfolders, filenames in os.walk(metric_root):
     for folder in subfolders:
         sys.path.append(os.path.join(metric_root, folder))
 sys.path.append('../..')
 from DataGeneration.benchmark import SummaCBenchmark, load_dataset
-from Metrics.ClozE.cloze_eval import ClozEEval
-from Metrics.CoLA.cola_eval import ColaEval
-from Metrics.DAE.dae_eval import DAEEval
-from Metrics.FactCC.factcc_eval import FactccEval
-from Metrics.FEQA.feqa_eval import FEQAEval
+
 from Metrics.QUALS.quals_eval import QUALSEval
-from Metrics.SummaC.summacconv_eval import SummaCConvEval
-from Metrics.SummaC.summaczs_eval import SummaCZSEval
+
 from tqdm import tqdm
 
 # fact_eval = [ClozEEval, DAEEval, FactccEval, FEQAEval, QUALSEval, SummaCConvEval]
-fact_eval = [SummaCZSEval]
-acceptance_eval = [ColaEval]
+fact_eval = [QUALSEval]
+# acceptance_eval = [ColaEval]
 
 def evaluate_frank_type():
     benchmark = SummaCBenchmark()
@@ -88,15 +84,13 @@ def evaluate_xsum_fake_feature():
             print('___________________________________________________')
             print('________start to evaluate '+file_name+'____________')
             print('___________________________________________________')
-            try:
-                for d in tqdm(data):
-                    document = str(d['document'])
-                    claim = str(d['fake_summary'])
-                    s = eval_metric.score(document, claim)
-                    score.append(s)
-            except Exception as e:
-                print(e)
-                score = None
+            
+            for d in tqdm(data):
+                document = str(d['document'])
+                claim = str(d['fake_summary'])
+                s = eval_metric.score(document, claim)
+                score.append(s)
+            
             xsum_result[eval_name][file_name] = score
             
         del eval_metric

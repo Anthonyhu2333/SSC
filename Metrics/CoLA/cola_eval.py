@@ -12,12 +12,12 @@ import pdb
 class ColaEval(Base_Eval):
     def __init__(self):
         self.model = AutoModelForSequenceClassification.from_pretrained("/root/autodl-tmp/SSC/Metrics/CoLA/checkpoint/cola_model")
-        self.tokenizer = AutoTokenizer.from_pretrained("/root/autodl-tmp/SSC/Metrics/CoLA/checkpoint/cola_model")
+        self.tokenizer = AutoTokenizer.from_pretrained("/root/autodl-tmp/SSC/Metrics/CoLA/checkpoint/cola_model", truncation=True, padding=True, max_length=512)
         self.classifier = pipeline("text-classification", model=self.model, tokenizer=self.tokenizer)
        
     def score(self, document=None, claim=None):
         result = self.classifier(claim)
-        if result['label'] == 'acceptable':
+        if result[0]['label'] == 'acceptable':
             return 1
         else:
             return 0

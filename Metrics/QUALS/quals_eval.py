@@ -6,7 +6,7 @@ from metric_utils import Base_Eval
 # spec = importlib.util.spec_from_file_location("BARTModel", module_path)
 # module = importlib.util.module_from_spec(spec)
 # spec.loader.exec_module(module)
-from bart import BARTModel
+from fairseq.models.bart import BARTModel
 from fairseq.data import LanguagePairDataset
 from fairseq.sequence_scorer import SequenceScorer
 from fairseq import utils
@@ -15,6 +15,9 @@ from tqdm import tqdm
 import torch
 import numpy as np
 import pdb
+
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 class QUALSEval(Base_Eval):
     def __init__(self):

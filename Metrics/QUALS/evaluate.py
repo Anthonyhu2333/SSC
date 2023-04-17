@@ -21,7 +21,7 @@ from Metrics.SummaC.summacconv_eval import SummaCConvEval
 from tqdm import tqdm
 
 # fact_eval = [ClozEEval, DAEEval, FactccEval, FEQAEval, QUALSEval, SummaCConvEval]
-fact_eval = [FactccEval]
+fact_eval = [ClozEEval, DAEEval, FactccEval, FEQAEval, SummaCConvEval]
 acceptance_eval = [ColaEval]
 
 def evaluate_frank_type():
@@ -71,8 +71,36 @@ def evaluate_xsum():
     with open('/root/autodl-tmp/SSC/data/score/xsum_2000_score_0329_FactCC.json', 'w') as f:
         f.writelines(json.dumps(xsum))
 
+def evaluate_xsum_fake_feature():
+    path = '/root/autodl-tmp/SSC/data/fake_data'
+    file_list = os.listdir(path)
+    xsum_result = {}
+    for item in fact_eval:
+        eval_metric = item()
+        eval_name = str(type(eval_metric).__name__)
+        xsum_result[eval_name] = {}
+        print('________start to evaluate on '+eval_name+'____________')
+        for file_name in file_list:
+            score = []
+            with open(path+'/'+file_name, 'r') as f:
+                data = [item for item in json.load(f) if item['summary']!=item['fake_summary']]
+            print('___________________________________________________')
+            print('________start to evaluate '+file_name+'____________')
+            print('___________________________________________________')
+            # try:
+            for d in tqdm(data):
+                document = str(d['document'])
+                claim = str(d['fake_summarys'])
+                s = eval_metric.score(document, claim)
+                score.append(s)
+            # except Exception as e:
+            #     print(e)
+            #     score = None
+            xsum_result[eval_name][file_name] = score
+        del eval_metric
+    with open('/root/autodl-tmp/SSC/data/score/fake_feature_0405.json', 'w') as f:
+        f.writelines(json.dumps(xsum_result))
 
 
 if __name__ == "__main__":
-    evaluate_frank_type()
-    # evaluate_xsum()
+    evaluate_xsum_fake_feature()

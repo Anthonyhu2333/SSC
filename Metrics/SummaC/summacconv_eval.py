@@ -9,6 +9,7 @@ import pdb
 class SummaCConvEval(Base_Eval):
     def __init__(self):
         self.model = SummaCConv(models=["vitc"], bins='percentile', granularity="sentence", nli_labels="e", device="cuda", start_file="default", agg="mean")
+        self.model.score(['Bob went to Beijing.'], ['Bob went to Beijing.'])["scores"][0]
 
     def score(self, document, claim):
         result = self.model.score([document], [claim])['scores'][0]

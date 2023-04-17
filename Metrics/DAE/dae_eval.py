@@ -15,6 +15,7 @@ class DAEEval(Base_Eval):
     def __init__(self):
 
         # subprocess.run('cd /root/autodl-tmp/SSC/Metrics/DAE/checkpoint/stanford-corenlp-full-2018-02-27 && java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer &', shell=True, check=True)
+        #sudo lsof -i :9000
 
         parser = argparse.ArgumentParser()
         self.args = parser.parse_args()
