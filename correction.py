@@ -7,6 +7,7 @@ import requests
 import json
 import pdb
 import spacy
+from tqdm import tqdm
 
 class CorrectionModel:
     def __init__(self, nlp=None):
@@ -36,7 +37,6 @@ class CorrectionModel:
                     index = item.head.__dict__[item.head_direction].index(item)
                     tree.delete_subtree(item)
                     result = sum([scorer.score(document=document, claim=tree.get_sentence())*weight for scorer, weight in zip(scorers, weights)])
-                    print(result)
                     if result > score:
                         output = tree.get_sentence()
                         score = result
@@ -45,8 +45,9 @@ class CorrectionModel:
         return ' '.join(output_list)
 
 class Scorer():
-    def __init__(self, url):
+    def __init__(self, url, name='scorer'):
         self.url = url
+        self.name = name
     
     def score(self, claim, document):
         # 定义请求数据
@@ -57,15 +58,40 @@ class Scorer():
         result = json.loads(response.text)
         return result
 
+    url_dic = {
+        'cloze': 10000,
+        'dae': 10002,
+        'factcc': 10003,
+        'feqa': 10004,
+        'summacconv': 10006,
+    }
+    url_pre = 'http://localhost:'
+
 if __name__ == "__main__":
     with open('/root/autodl-tmp/SSC/frank_sentence.json', 'r') as f:
         data = json.load(f)
     c = CorrectionModel()
-    cloze_score = Scorer(url='http://localhost:10006/summacconv')
-    for item in data:
+    cloze_scorer = Scorer(url='http://localhost:10000/cloze', name='cloze')
+    dae_scorer = Scorer(url='http://localhost:10002/dae', name='dae')
+    factcc_scorer = Scorer(url='http://localhost:10003/factcc', name='factcc')
+    feqa_scorer = Scorer(url='http://localhost:10004/feqa', name='feqa')
+    quals_scorer = Scorer(url='http://localhost:10005/quals', name='quals')
+    summacconv_scorer = Scorer(url='http://localhost:10006/summacconv', name='summacconv')
+
+    scorer_list = [quals_scorer]
+    
+    for item in tqdm(data):
         document = item['document']
         claim = item['claim']
-        output = c.correct_ssc(claim, document, [cloze_score])
+        try:
+            output = c.correct_ssc(claim, document, scorer_list)
+        except Exception as e:
+            output = claim
+        item['corrected_claim'] = output
+    
+    metric_name = '_'.join([item.name for item in scorer_list])
+    with open('/root/autodl-tmp/SSC/data/correction_result/'+ metric_name+'.json', 'w') as f:
+        f.writelines(json.dumps(data))
 
 
     
