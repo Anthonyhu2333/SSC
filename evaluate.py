@@ -20,10 +20,25 @@ from Metrics.QUALS.quals_eval import QUALSEval
 from Metrics.SummaC.summacconv_eval import SummaCConvEval
 from Metrics.SummaC.summaczs_eval import SummaCZSEval
 from tqdm import tqdm
+import requests
 
 # fact_eval = [ClozEEval, DAEEval, FactccEval, FEQAEval, QUALSEval, SummaCConvEval]
 fact_eval = [SummaCZSEval]
 acceptance_eval = [ColaEval]
+
+class Scorer():
+    def __init__(self, url, name='scorer'):
+        self.url = url
+        self.name = name
+    
+    def score(self, claim, document):
+        # 定义请求数据
+        data = {'document': document, 'claim': claim}
+        # 发送POST请求并获取响应
+        response = requests.post(self.url, json=data)
+        # 解析响应JSON数据
+        result = json.loads(response.text)
+        return result
 
 def evaluate_frank_type():
     benchmark = SummaCBenchmark()
@@ -103,6 +118,39 @@ def evaluate_xsum_fake_feature():
     with open('/root/autodl-tmp/SSC/data/score/fake_feature_0409_SummaCZS.json', 'w') as f:
         f.writelines(json.dumps(xsum_result))
 
+def evaluate_file(scorers):
+    total_result = {}
+    path = '/root/autodl-tmp/SSC/data/correction_result'
+    file_list = os.listdir(path)
+    for file_name in tqdm(file_list):
+        total_result[file_name] = {}
+        with open(path+'/'+file_name, 'r') as f:
+            data = json.load(f)
+        for scorer in scorers:
+            result = []
+            for item in tqdm(data):
+                document = item['document']
+                claim = item['corrected_claim']
+                # try:
+                score = scorer.score(document=document, claim=claim)
+                # except Exception as e:
+                    # score = 0
+                result.append(score)
+            total_result[file_name][scorer.name] = [item for item in result]
+    with open('/root/autodl-tmp/SSC/data/score/frank_corrected_0418_FEQA.json', 'w') as f:
+        f.writelines(json.dumps(total_result))
+        
+
+
+
 
 if __name__ == "__main__":
-    evaluate_xsum_fake_feature()
+    cloze_scorer = Scorer(url='http://localhost:10000/cloze', name='cloze')
+    dae_scorer = Scorer(url='http://localhost:10002/dae', name='dae')
+    factcc_scorer = Scorer(url='http://localhost:10003/factcc', name='factcc')
+    feqa_scorer = Scorer(url='http://localhost:10004/feqa', name='feqa')
+    quals_scorer = Scorer(url='http://localhost:10005/quals', name='quals')
+    summacconv_scorer = Scorer(url='http://localhost:10006/summacconv', name='summacconv')
+    scorer_list = [feqa_scorer]
+    evaluate_file(scorer_list)
+    
