@@ -22,10 +22,6 @@ from Metrics.SummaC.summaczs_eval import SummaCZSEval
 from tqdm import tqdm
 import requests
 
-# fact_eval = [ClozEEval, DAEEval, FactccEval, FEQAEval, QUALSEval, SummaCConvEval]
-fact_eval = [SummaCZSEval]
-acceptance_eval = [ColaEval]
-
 class Scorer():
     def __init__(self, url, name='scorer'):
         self.url = url
@@ -40,13 +36,16 @@ class Scorer():
         result = json.loads(response.text)
         return result
 
+# fact_eval = [ClozEEval, DAEEval, FactccEval, FEQAEval, QUALSEval, SummaCConvEval]
+fact_eval = [Scorer(url='http://localhost:10005/quals', name='quals')]
+acceptance_eval = [ColaEval]
+
 def evaluate_frank_type():
     benchmark = SummaCBenchmark()
     frank_result = {}
     frank_type = ['RelE', 'EntE', 'CircE', 'CorefE', 'LinkE', 'OutE', 'GramE']
     for item in fact_eval:
-        eval_metric = item()
-        eval_metric.score('Bob went to Beijing.', 'Bob went to Beijing.')
+        eval_metric = item
         eval_name = str(type(eval_metric).__name__)
         frank_result[eval_name] = {}
         print('________start to evaluate on '+eval_name+'____________')
@@ -67,7 +66,7 @@ def evaluate_frank_type():
             #     score = None
             frank_result[eval_name][data_type] = score
         del eval_metric
-    with open('/root/autodl-tmp/SSC/data/score/frank_type_score_0329_factCC.json', 'w') as f:
+    with open('/root/autodl-tmp/SSC/data/score/frank_type_score_0419.json', 'w') as f:
         f.writelines(json.dumps(frank_result))
 
 def evaluate_xsum():
@@ -152,5 +151,5 @@ if __name__ == "__main__":
     quals_scorer = Scorer(url='http://localhost:10005/quals', name='quals')
     summacconv_scorer = Scorer(url='http://localhost:10006/summacconv', name='summacconv')
     scorer_list = [feqa_scorer]
-    evaluate_file(scorer_list)
+    evaluate_frank_type()
     

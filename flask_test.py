@@ -6,7 +6,9 @@ url_dic = {
     'dae': 10002,
     'factcc': 10003,
     'feqa': 10004,
+    'quals': 10005,
     'summacconv': 10006,
+    'dae_doc': 10007,
 }
 url_pre = 'http://localhost:'
 for key in url_dic:

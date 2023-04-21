@@ -77,8 +77,9 @@ if __name__ == "__main__":
     feqa_scorer = Scorer(url='http://localhost:10004/feqa', name='feqa')
     quals_scorer = Scorer(url='http://localhost:10005/quals', name='quals')
     summacconv_scorer = Scorer(url='http://localhost:10006/summacconv', name='summacconv')
+    dae_doc_scorer = Scorer(url='http://localhost:10007/dae_doc', name='dae_doc')
 
-    scorer_list = [quals_scorer]
+    scorer_list = [dae_doc_scorer]
     
     for item in tqdm(data):
         document = item['document']
