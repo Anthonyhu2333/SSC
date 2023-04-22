@@ -33,11 +33,14 @@ class Scorer():
         # 发送POST请求并获取响应
         response = requests.post(self.url, json=data)
         # 解析响应JSON数据
-        result = json.loads(response.text)
+        try:
+            result = json.loads(response.text)
+        except Exception as e:
+            result = 0
         return result
 
 # fact_eval = [ClozEEval, DAEEval, FactccEval, FEQAEval, QUALSEval, SummaCConvEval]
-fact_eval = [Scorer(url='http://localhost:10005/quals', name='quals')]
+fact_eval = [Scorer(url='http://localhost:10007/dae_doc', name='dae_doc')]
 acceptance_eval = [ColaEval]
 
 def evaluate_frank_type():
@@ -66,7 +69,7 @@ def evaluate_frank_type():
             #     score = None
             frank_result[eval_name][data_type] = score
         del eval_metric
-    with open('/root/autodl-tmp/SSC/data/score/frank_type_score_0419.json', 'w') as f:
+    with open('/root/autodl-tmp/SSC/data/score/frank_type_score_0421_dae.json', 'w') as f:
         f.writelines(json.dumps(frank_result))
 
 def evaluate_xsum():
@@ -130,13 +133,11 @@ def evaluate_file(scorers):
             for item in tqdm(data):
                 document = item['document']
                 claim = item['corrected_claim']
-                # try:
                 score = scorer.score(document=document, claim=claim)
-                # except Exception as e:
-                    # score = 0
                 result.append(score)
             total_result[file_name][scorer.name] = [item for item in result]
-    with open('/root/autodl-tmp/SSC/data/score/frank_corrected_0418_FEQA.json', 'w') as f:
+    name = '_'.join([item.name for item in scorers])
+    with open('/root/autodl-tmp/SSC/data/score/frank_corrected_0422_'+name+'.json', 'w') as f:
         f.writelines(json.dumps(total_result))
         
 
@@ -150,6 +151,7 @@ if __name__ == "__main__":
     feqa_scorer = Scorer(url='http://localhost:10004/feqa', name='feqa')
     quals_scorer = Scorer(url='http://localhost:10005/quals', name='quals')
     summacconv_scorer = Scorer(url='http://localhost:10006/summacconv', name='summacconv')
-    scorer_list = [feqa_scorer]
-    evaluate_frank_type()
+    dae_doc_scorere = Scorer(url='http://localhost:10007/dae_doc', name='dae_doc')
+    scorer_list = [dae_doc_scorere]
+    evaluate_file(scorer_list)
     

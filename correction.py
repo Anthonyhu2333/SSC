@@ -9,14 +9,35 @@ import pdb
 import spacy
 from tqdm import tqdm
 
+vote_num = 5
+
+class Scorer():
+    def __init__(self, url, name='scorer'):
+        self.url = url
+        self.name = name
+    
+    def score(self, claim, document):
+        # 定义请求数据
+        data = {'document': document, 'claim': claim}
+        # 发送POST请求并获取响应
+        response = requests.post(self.url, json=data)
+        # 解析响应JSON数据
+        try:
+            result = json.loads(response.text)
+        except Exception as e:
+            result = 0
+        return result
+
 class CorrectionModel:
     def __init__(self, nlp=None):
         if nlp == None:
             self.spacy = spacy.load("en_core_web_sm")
         else:
             self.spacy = nlp
-        self.deletoin_relation = ['acl', 'dep', 'appos', 'advcl', 'agent', 'nmod', 'advmod', 'prt', 'prep', 'amod', 'compound', 'neg', 'relcl', 'punct', 'ccomp', 'poss', 'conj', 'pcomp', 'xcomp']
+        self.deletoin_relation = ['acl', 'dep', 'appos', 'advcl', 'agent', 'nmod', 'advmod', 'prt', 'prep', 'amod', 'compound', 'neg', 'relcl', 'punct', 'ccomp', 'poss', 'conj', 'pcomp', 'xcomp'] 
+        self.deletoin_relation_need_check = ['amod', 'compound', 'neg', 'relcl', 'punct', 'ccomp', 'poss', 'conj', 'pcomp', 'xcomp']
         self.replace_relation = ['entity']
+        self.grammar_checker = Scorer(url='http://localhost:10001/cola', name='cola')
 
 
     def correct_ssc(self, claim, document, scorers=None, weights=None):
@@ -30,48 +51,38 @@ class CorrectionModel:
         output_list = []
         for tree in trees:
             check_list = tree.head.get_check_list()
-            score = sum([scorer.score(document=document, claim=tree.get_sentence())*weight for scorer, weight in zip(scorers, weights)])
+            score_list = [scorer.score(document=document, claim=tree.get_sentence()) for scorer in scorers]
+            score = sum([s*weight for s, weight in zip(score_list, weights)])
             output = tree.get_sentence()
             for item in check_list:
                 if item.rel in self.deletoin_relation:       
                     index = item.head.__dict__[item.head_direction].index(item)
                     tree.delete_subtree(item)
-                    result = sum([scorer.score(document=document, claim=tree.get_sentence())*weight for scorer, weight in zip(scorers, weights)])
+                    if self.grammar_checker.score(document=document, claim=tree.get_sentence()) == 0:
+                        item.head.__dict__[item.head_direction].insert(index, item)
+                        continue
+                    result_list = [scorer.score(document=document, claim=tree.get_sentence()) for scorer in scorers]
+                    result = sum([s*weight for s, weight in zip(score_list, weights)])
+
+                    # if sum([s>r for s,r in zip(score_list, result_list)])>vote_num:
                     if result > score:
                         output = tree.get_sentence()
+                        score_list = result_list
                         score = result
                     item.head.__dict__[item.head_direction].insert(index, item)
             output_list.append(output)                 
         return ' '.join(output_list)
 
-class Scorer():
-    def __init__(self, url, name='scorer'):
-        self.url = url
-        self.name = name
-    
-    def score(self, claim, document):
-        # 定义请求数据
-        data = {'document': document, 'claim': claim}
-        # 发送POST请求并获取响应
-        response = requests.post(self.url, json=data)
-        # 解析响应JSON数据
-        result = json.loads(response.text)
-        return result
 
-    url_dic = {
-        'cloze': 10000,
-        'dae': 10002,
-        'factcc': 10003,
-        'feqa': 10004,
-        'summacconv': 10006,
-    }
-    url_pre = 'http://localhost:'
+
+
 
 if __name__ == "__main__":
     with open('/root/autodl-tmp/SSC/frank_sentence.json', 'r') as f:
         data = json.load(f)
     c = CorrectionModel()
     cloze_scorer = Scorer(url='http://localhost:10000/cloze', name='cloze')
+    
     dae_scorer = Scorer(url='http://localhost:10002/dae', name='dae')
     factcc_scorer = Scorer(url='http://localhost:10003/factcc', name='factcc')
     feqa_scorer = Scorer(url='http://localhost:10004/feqa', name='feqa')

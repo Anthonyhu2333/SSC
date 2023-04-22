@@ -3,9 +3,9 @@ import json
 
 url_dic = {
     'cloze': 10000,
-    'dae': 10002,
+    # 'dae': 10002,
     'factcc': 10003,
-    'feqa': 10004,
+    # 'feqa': 10004,
     'quals': 10005,
     'summacconv': 10006,
     'dae_doc': 10007,
